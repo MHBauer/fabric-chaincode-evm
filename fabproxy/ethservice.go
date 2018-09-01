@@ -30,6 +30,7 @@ type ChannelClient interface {
 	Execute(request channel.Request, options ...channel.RequestOption) (channel.Response, error)
 }
 
+//go:generate counterfeiter -o ../mocks/mockledgerclient.go --fake-name MockLedgerClient ./ LedgerClient
 type LedgerClient interface {
 	QueryInfo(options ...ledger.RequestOption) (*fab.BlockchainInfoResponse, error)
 	QueryBlock(blockNumber uint64, options ...ledger.RequestOption) (*common.Block, error)
@@ -37,6 +38,11 @@ type LedgerClient interface {
 	QueryTransaction(txid fab.TransactionID, options ...ledger.RequestOption) (*peer.ProcessedTransaction, error)
 }
 
+// EthService is the rpc server implementation. Each function is an
+// implementation of one ethereum json-rpc
+// https://github.com/ethereum/wiki/wiki/JSON-RPC
+//
+//go:generate counterfeiter -o ../mocks/mockethservice.go --fake-name MockEthService ./ EthService
 type EthService interface {
 	GetCode(r *http.Request, arg *string, reply *string) error
 	Call(r *http.Request, args *EthArgs, reply *string) error
@@ -44,6 +50,9 @@ type EthService interface {
 	GetTransactionReceipt(r *http.Request, arg *string, reply *TxReceipt) error
 	Accounts(r *http.Request, arg *string, reply *[]string) error
 	GetBlockByNumber(r *http.Request, p *[]interface{}, reply *Block) error
+	GetTransactionByHash(r *http.Request, txID *string, reply *TxReceipt) error
+	GetBalance(r *http.Request, p *[]interface{}, reply *string) error
+	EstimateGas(r *http.Request, p *[]interface{}, reply *string) error
 }
 
 type ethService struct {
@@ -399,5 +408,69 @@ func (s *ethService) GetBlockByNumber(r *http.Request, p *[]interface{}, reply *
 		fmt.Println("IT WANTS JUST THE HASHES")
 	}
 
+	return nil
+}
+
+// Object - A transaction object, or null when no transaction was found:
+type Tx struct {
+	// 	blockHash: DATA, 32 Bytes - hash of the block where this transaction was in. null when its pending.
+	// blockNumber: QUANTITY - block number where this transaction was in. null when its pending.
+	// from: DATA, 20 Bytes - address of the sender.
+	// gas: QUANTITY - gas provided by the sender.
+	// gasPrice: QUANTITY - gas price provided by the sender in Wei.
+	// hash: DATA, 32 Bytes - hash of the transaction.
+	// input: DATA - the data send along with the transaction.
+	// nonce: QUANTITY - the number of transactions made by the sender prior to this one.
+	// to: DATA, 20 Bytes - address of the receiver. null when its a contract creation transaction.
+	// transactionIndex: QUANTITY - integer of the transactions index position in the block. null when its pending.
+	// value: QUANTITY - value transferred in Wei.
+	// v: QUANTITY - ECDSA recovery id
+	// r: DATA, 32 Bytes - ECDSA signature r
+	// s: DATA, 32 Bytes - ECDSA signature s
+}
+
+func (s *ethService) GetTransactionByHash(r *http.Request, txID *string, reply *TxReceipt) error {
+	fmt.Println("GetTransactionByHash called")
+	strippedTxId := strip0xFromHex(*txID)
+
+	tx, err := s.ledgerClient.QueryTransaction(fab.TransactionID(strippedTxId))
+	if err != nil {
+		return errors.New(fmt.Sprintf("Failed to query the ledger: %s", err.Error()))
+	}
+
+	p := tx.GetTransactionEnvelope().GetPayload()
+	payload := &common.Payload{}
+	err = proto.Unmarshal(p, payload)
+	if err != nil {
+		return errors.New(fmt.Sprintf("Failed to unmarshal transaction: %s", err.Error()))
+	}
+
+	txActions := &peer.Transaction{}
+	err = proto.Unmarshal(payload.GetData(), txActions)
+	if err != nil {
+		return errors.New(fmt.Sprintf("Failed to unmarshal transaction: %s", err.Error()))
+	}
+
+	ccPropPayload, respPayload, err := getPayloads(txActions.GetActions()[0])
+	fmt.Println(ccPropPayload, respPayload) // print so go doesn't blow up
+	if err != nil {
+		return errors.New(fmt.Sprintf("Failed to unmarshal transaction: %s", err.Error()))
+	}
+
+	return nil
+}
+
+func (s *ethService) GetBalance(r *http.Request, p *[]interface{}, reply *string) error {
+	fmt.Println("GetBalance called")
+	zeroValue := "0x0"
+	*reply = zeroValue
+	return nil
+}
+
+// EstimateGas is like EthCall but everything is optional!
+func (s *ethService) EstimateGas(r *http.Request, p *[]interface{}, reply *string) error {
+	fmt.Println("EstimateGas called")
+	zeroValue := "0x0"
+	*reply = zeroValue
 	return nil
 }
