@@ -333,21 +333,21 @@ func (s *ethService) GetBlockByNumber(r *http.Request, p *[]interface{}, reply *
 		return fmt.Errorf("Incorrect second parameter sent, must be boolean")
 	}
 
-	getBlockByNumber := func(number uint64) (*Block, error) {
+	getBlockByNumber := func(number uint64) (Block, error) {
 		block, err := s.ledgerClient.QueryBlock(number)
 		if err != nil {
-			return nil, err
+			return Block{}, err
 		}
 
 		blkHeader := block.GetHeader()
 
-		blk := &Block{
+		blk := Block{
 			Number:       strconv.FormatUint(number, 10),
 			Hash:         hex.EncodeToString(blkHeader.GetDataHash()),
 			ParentHash:   hex.EncodeToString(blkHeader.GetPreviousHash()),
 			Transactions: []interface{}{},
 		}
-		fmt.Println("asked for block", number, "found block", *blk)
+		fmt.Println("asked for block", number, "found block", blk)
 		return blk, nil
 	}
 
@@ -370,14 +370,14 @@ func (s *ethService) GetBlockByNumber(r *http.Request, p *[]interface{}, reply *
 			topBlockNumber := blockchainInfo.BCI.GetHeight() - 1
 
 			// handleNumberedBlock topBlockNumber
-			reply, err = getBlockByNumber(topBlockNumber)
+			*reply, err = getBlockByNumber(topBlockNumber)
 			if err != nil {
 				fmt.Println(err)
 				return err
 			}
 		case "earliest":
 			// handleNumberedBlock 0
-			reply, err = getBlockByNumber(0)
+			*reply, err = getBlockByNumber(0)
 			if err != nil {
 				return err
 			}
@@ -387,7 +387,7 @@ func (s *ethService) GetBlockByNumber(r *http.Request, p *[]interface{}, reply *
 	} else {
 		// handleNumberedBlock
 		// do we check that it's in bound or go-for-it?
-		reply, err = getBlockByNumber(block.blockNumber)
+		*reply, err = getBlockByNumber(block.blockNumber)
 		if err != nil {
 			return fmt.Errorf("")
 		}
