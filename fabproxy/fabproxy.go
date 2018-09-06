@@ -23,14 +23,13 @@ type FabProxy struct {
 
 func NewFabProxy(service EthService) *FabProxy {
 	rpcServer := rpc.NewServer()
-
 	proxy := &FabProxy{
 		rpcServer: rpcServer,
 	}
 
 	rpcServer.RegisterCodec(NewRPCCodec(), "application/json")
 	rpcServer.RegisterService(service, "eth")
-
+	rpcServer.RegisterService(&NetService{}, "net")
 	return proxy
 }
 
