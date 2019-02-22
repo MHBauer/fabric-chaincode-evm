@@ -54,6 +54,10 @@ var _ = Describe("Fab3", func() {
 	BeforeEach(func() {
 		SimpleStorage = helpers.SimpleStorageContract()
 		client = &http.Client{}
+		if os.Getenv("USE_EXISTING_FAB3") != "" {
+			proxyAddress = "http://127.0.0.1:5000"
+			return
+		}
 
 		//Start up Proxy
 		proxyPort := uint16(6000 + config.GinkgoConfig.ParallelNode)
@@ -64,6 +68,10 @@ var _ = Describe("Fab3", func() {
 	})
 
 	AfterEach(func() {
+		if os.Getenv("USE_EXISTING_FAB3") != "" {
+			proxyAddress = "http://127.0.0.1:5000"
+			return
+		}
 		if proxy != nil {
 			proxy.Signal(syscall.SIGTERM)
 			Eventually(proxy.Wait(), LongEventualTimeout, LongPollingInterval).Should(Receive())
@@ -226,6 +234,9 @@ var _ = Describe("Fab3", func() {
 	})
 
 	It("shuts down gracefully when it receives an Interrupt signal", func() {
+		if os.Getenv("USE_EXISTING_FAB3") != "" {
+			return
+		}
 		proxy.Signal(os.Interrupt)
 
 		Eventually(proxy.Wait()).Should(Receive())
@@ -233,6 +244,9 @@ var _ = Describe("Fab3", func() {
 	})
 
 	It("shuts down gracefully when it receives an SIGTERM signal", func() {
+		if os.Getenv("USE_EXISTING_FAB3") != "" {
+			return
+		}
 		proxy.Signal(syscall.SIGTERM)
 
 		Eventually(proxy.Wait()).Should(Receive())

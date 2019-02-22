@@ -43,6 +43,9 @@ var (
 )
 
 var _ = SynchronizedBeforeSuite(func() []byte {
+	if os.Getenv("USE_EXISTING_FABRIC") != "" {
+		return nil
+	}
 	components = helpers.Build()
 
 	var err error
@@ -92,12 +95,18 @@ var _ = SynchronizedBeforeSuite(func() []byte {
 
 	return payload
 }, func(payload []byte) {
+	if os.Getenv("USE_EXISTING_FABRIC") != "" {
+		return
+	}
 	err := json.Unmarshal(payload, &components)
 	Expect(err).NotTo(HaveOccurred())
 })
 
 var _ = SynchronizedAfterSuite(func() {
 }, func() {
+	if os.Getenv("USE_EXISTING_FABRIC") != "" {
+		return
+	}
 	if process != nil {
 		process.Signal(syscall.SIGTERM)
 		Eventually(process.Wait(), LongEventualTimeout, LongPollingInterval).Should(Receive())

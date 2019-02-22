@@ -8,6 +8,7 @@ package fab3
 
 import (
 	"fmt"
+	"os"
 	"syscall"
 	"time"
 
@@ -41,6 +42,10 @@ var _ = Describe("Web3 Integration", func() {
 	})
 
 	It("web3 can deploy and interact with smart contracts", func() {
+		if os.Getenv("USE_EXISTING_FAB3") != "" {
+			return
+		}
+
 		By("starting up a fab3 for user 1")
 		user1ProxyPort := uint16(2000 + config.GinkgoConfig.ParallelNode)
 		user1ProxyRunner := helpers.Fab3Runner(components.Paths["fab3"], components.Paths["Fab3Config"], "Org1", "User1", channelName, ccid, user1ProxyPort)
