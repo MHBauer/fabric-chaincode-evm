@@ -1,3 +1,5 @@
+ # SPDX-License-Identifier: Apache-2.0
+
 name: Go
 on: [push]
 jobs:
@@ -7,7 +9,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        go_version: [1.10, 1.11, 1.12]
+        go_version: ["1.10", 1.11, 1.12, 1.13]
         os: [ubuntu-latest, windows-latest, macOS-latest]
     steps:
     - name: Set up Go ${{ matrix.go_version }}
