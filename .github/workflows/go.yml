@@ -34,7 +34,7 @@ jobs:
       uses: actions/checkout@master
       with:
         fetch-depth: 1
-        path: go/src/github.com/hyperledger/fabric-chaincode-evm
+        path: src/github.com/hyperledger/fabric-chaincode-evm
 
     - name: Debug
       run: |
