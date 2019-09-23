@@ -5,12 +5,11 @@ on: [push]
 jobs:
 
   build:
-    name: Test on node ${{ matrix.go_version }} and ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: Test on node ${{ matrix.go_version }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         go_version: ["1.10", 1.11, 1.12, 1.13]
-        os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
     - name: Set up Go ${{ matrix.go_version }}
