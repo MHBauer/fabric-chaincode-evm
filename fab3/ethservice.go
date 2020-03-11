@@ -209,7 +209,12 @@ func (s *ethService) GetTransactionReceipt(r *http.Request, txID *string, reply 
 	if err != nil {
 		return errors.Wrap(err, "failed to get EVM Logs out of fabric event")
 	}
-	receipt.Logs = txLogs
+
+	receipt.Logs = []types.Log{}
+	if txLogs != nil {
+		receipt.Logs = txLogs
+	}
+
 
 	*reply = receipt
 	return nil
