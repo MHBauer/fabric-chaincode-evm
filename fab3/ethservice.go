@@ -215,7 +215,6 @@ func (s *ethService) GetTransactionReceipt(r *http.Request, txID *string, reply 
 		receipt.Logs = txLogs
 	}
 
-
 	*reply = receipt
 	return nil
 }

@@ -419,6 +419,8 @@ var _ = Describe("Ethservice", func() {
 			Expect(txID).To(Equal(fab.TransactionID(sampleTransactionID)))
 			Expect(reqOpts).To(HaveLen(0))
 
+			var expectedLogs []types.Log
+			expectedLogs = make([]types.Log, 0)
 			Expect(reply).To(Equal(types.TxReceipt{
 				TransactionHash:   "0x" + sampleTransactionID,
 				TransactionIndex:  "0x1",
@@ -427,6 +429,7 @@ var _ = Describe("Ethservice", func() {
 				GasUsed:           0,
 				CumulativeGasUsed: 0,
 				To:                "0x" + sampleAddress,
+				Logs:              expectedLogs,
 				Status:            "0x1",
 				From:              addrFromCert,
 			}))
@@ -556,6 +559,8 @@ var _ = Describe("Ethservice", func() {
 				Expect(txID).To(Equal(fab.TransactionID(sampleTransactionID)))
 				Expect(reqOpts).To(HaveLen(0))
 
+				var expectedLogs []types.Log
+				expectedLogs = make([]types.Log, 0)
 				Expect(reply).To(Equal(types.TxReceipt{
 					TransactionHash:   "0x" + sampleTransactionID,
 					TransactionIndex:  "0x0",
@@ -564,7 +569,7 @@ var _ = Describe("Ethservice", func() {
 					ContractAddress:   "0x" + string(contractAddress),
 					GasUsed:           0,
 					CumulativeGasUsed: 0,
-					Logs:              nil,
+					Logs:              expectedLogs,
 					Status:            "0x1",
 					From:              addrFromCert,
 				}))
@@ -585,6 +590,8 @@ var _ = Describe("Ethservice", func() {
 					Expect(txID).To(Equal(fab.TransactionID(sampleTransactionID[2:])))
 					Expect(reqOpts).To(HaveLen(0))
 
+					var expectedLogs []types.Log
+					expectedLogs = make([]types.Log, 0)
 					Expect(reply).To(Equal(types.TxReceipt{
 						TransactionHash:   sampleTransactionID,
 						TransactionIndex:  "0x0",
@@ -593,7 +600,7 @@ var _ = Describe("Ethservice", func() {
 						ContractAddress:   "0x" + string(contractAddress),
 						GasUsed:           0,
 						CumulativeGasUsed: 0,
-						Logs:              nil,
+						Logs:              expectedLogs,
 						Status:            "0x1",
 						From:              addrFromCert,
 					}))
@@ -633,6 +640,8 @@ var _ = Describe("Ethservice", func() {
 				err := ethservice.GetTransactionReceipt(&http.Request{}, &txnID1, &reply)
 				Expect(err).ToNot(HaveOccurred())
 
+				var expectedLogs []types.Log
+				expectedLogs = make([]types.Log, 0)
 				Expect(reply).To(Equal(types.TxReceipt{
 					TransactionHash:   "0x" + txnID1,
 					TransactionIndex:  "0x0",
@@ -640,6 +649,7 @@ var _ = Describe("Ethservice", func() {
 					BlockNumber:       "0x1f",
 					GasUsed:           0,
 					CumulativeGasUsed: 0,
+					Logs:              expectedLogs,
 					Status:            "0x1",
 				}))
 			})
@@ -649,6 +659,8 @@ var _ = Describe("Ethservice", func() {
 				err := ethservice.GetTransactionReceipt(&http.Request{}, &txnID2, &reply)
 				Expect(err).ToNot(HaveOccurred())
 
+				var expectedLogs []types.Log
+				expectedLogs = make([]types.Log, 0)
 				Expect(reply).To(Equal(types.TxReceipt{
 					TransactionHash:   "0x" + txnID2,
 					TransactionIndex:  "0x1",
@@ -656,6 +668,7 @@ var _ = Describe("Ethservice", func() {
 					BlockNumber:       "0x1f",
 					GasUsed:           0,
 					CumulativeGasUsed: 0,
+					Logs:              expectedLogs,
 					Status:            "0x1",
 				}))
 			})
@@ -665,6 +678,8 @@ var _ = Describe("Ethservice", func() {
 				err := ethservice.GetTransactionReceipt(&http.Request{}, &txnID3, &reply)
 				Expect(err).ToNot(HaveOccurred())
 
+				var expectedLogs []types.Log
+				expectedLogs = make([]types.Log, 0)
 				Expect(reply).To(Equal(types.TxReceipt{
 					TransactionHash:   "0x" + txnID3,
 					TransactionIndex:  "0x2",
@@ -672,6 +687,7 @@ var _ = Describe("Ethservice", func() {
 					BlockNumber:       "0x1f",
 					GasUsed:           0,
 					CumulativeGasUsed: 0,
+					Logs:              expectedLogs,
 					Status:            "0x1",
 				}))
 			})
