@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: Apache-2.0
+
+go_import_path: github.com/hyperledger/fabric-chaincode-evm
+
+services:
+  - docker
+
+language: go
+
+go:
+  - "1.10.4"
+  - "1.10"
+  - 1.11
+  - 1.12
+  - 1.13
+
+before_install:
+  - nvm install "10.16.3"
+
